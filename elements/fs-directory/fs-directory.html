@@ -4,7 +4,8 @@
 
 <polymer-element name="fs-directory" attributes="path">
     <template>
-        <core-ajax 
+        <core-ajax
+            id="ajax"
             url="http://localhost:9595/readdir" 
             params='{"path":"{{path}}"}'
             handleAs="json"
@@ -17,24 +18,43 @@
     </template>
     <script>
         Polymer('fs-directory', {
-            ready: function() {
-            //...
+            ready: function () {
+                window.onhashchange = this.onhashchange.bind(this);
+            },
+            onhashchange: function (event) {
+                var newURL = event.newURL,
+                    hashIndex = newURL.indexOf("#");
+
+                if (hashIndex < 0) {
+                    this.path = "/";
+                } else {
+                    this.path = newURL.substring(hashIndex + 1, newURL.length);
+                }
+            },
+            pathChanged: function (oldPath, newPath) {
+                console.log("Path changed to ", newPath);
+
+                this.$.entries.innerHTML = "";
+
+                var params = '{"path":"' + newPath + '"}';
+                this.$.ajax.setAttribute("params", params);
             },
             handleResponse: function (event, xhr) {
                 var entries = xhr.response,
+                    basedir = this.path,
                     root = this.$.entries;
-
-                console.log(entries);
 
                 entries.forEach(function (entry) {
                     var li = document.createElement("li"),
                         el = document.createElement("fs-entry");
                     
+                    el.setAttribute("basedir", basedir);
                     el.setAttribute("name", entry.name);
                     el.setAttribute("mtime", entry.mtime);
-                    el.setAttribute("is-dir", entry.isDir);
                     el.setAttribute("size", entry.size);
-
+                    if (entry.isDir) {
+                        el.setAttribute("directory", "directory");
+                    }
 
                     li.appendChild(el);
                     root.appendChild(li);
