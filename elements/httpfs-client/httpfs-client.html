@@ -2,16 +2,16 @@
 <link rel="import" href="../httpfs-directory/httpfs-directory.html">
 <link rel="import" href="../httpfs-file/httpfs-file.html">
 
-<polymer-element name="httpfs-client" attribute="host port">
+<polymer-element name="httpfs-client" attributes="host port">
     <template>
         <httpfs-directory id="directory" path="/" url="http://{{host}}:{{port}}"></httpfs-directory>
         <httpfs-file id="file" url="http://{{host}}:{{port}}" hidden="true"></httpfs-file>
     </template>
     <script>
         Polymer("httpfs-client", {
-            host: "localhost",
-            port: "9595",
             ready: function () {
+                this.host = this.host || "localhost";
+                this.port = this.port || "9595";
                 window.onhashchange = this.onhashchange.bind(this);
             },
             onhashchange: function (event) {
