@@ -1,0 +1,45 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../fs-entry/fs-entry.html">
+
+<polymer-element name="fs-directory" attributes="path">
+    <template>
+        <core-ajax 
+            url="http://localhost:9595/readdir" 
+            params='{"path":"{{path}}"}'
+            handleAs="json"
+            on-core-response="{{handleResponse}}"
+            auto>
+        </core-ajax>
+
+        <header>Directory: {{path}}</header>
+        <ol id="entries"></ol>
+    </template>
+    <script>
+        Polymer('fs-directory', {
+            ready: function() {
+            //...
+            },
+            handleResponse: function (event, xhr) {
+                var entries = xhr.response,
+                    root = this.$.entries;
+
+                console.log(entries);
+
+                entries.forEach(function (entry) {
+                    var li = document.createElement("li"),
+                        el = document.createElement("fs-entry");
+                    
+                    el.setAttribute("name", entry.name);
+                    el.setAttribute("mtime", entry.mtime);
+                    el.setAttribute("is-dir", entry.isDir);
+                    el.setAttribute("size", entry.size);
+
+
+                    li.appendChild(el);
+                    root.appendChild(li);
+                });
+            }
+        });
+    </script>
+</polymer-element>
