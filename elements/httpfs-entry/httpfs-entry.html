@@ -1,0 +1,7 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="httpfs-entry" attributes="basedir name mtime size directory" noscript>
+  <template>
+    <span>{{directory ? "Directory" : "File"}} - <a href='#{{basedir}}/{{name}}{{directory ? "/" : ""}}'>{{name}}</a> - {{mtime}} - {{size}}</span>
+  </template>
+</polymer-element>

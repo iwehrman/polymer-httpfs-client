@@ -1,0 +1,41 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../httpfs-directory/httpfs-directory.html">
+<link rel="import" href="../httpfs-file/httpfs-file.html">
+
+<polymer-element name="httpfs-client" attribute="host port">
+    <template>
+        <httpfs-directory id="directory" path="/" url="http://{{host}}:{{port}}"></httpfs-directory>
+        <httpfs-file id="file" url="http://{{host}}:{{port}}" hidden="true"></httpfs-file>
+    </template>
+    <script>
+        Polymer("httpfs-client", {
+            host: "localhost",
+            port: "9595",
+            ready: function () {
+                window.onhashchange = this.onhashchange.bind(this);
+            },
+            onhashchange: function (event) {
+                var newURL = event.newURL,
+                    hashIndex = newURL.indexOf("#"),
+                    path;
+
+                if (hashIndex < 0) {
+                    path = "/";
+                } else {
+                    path = newURL.substring(hashIndex + 1, newURL.length);
+                }
+
+                if (path[path.length - 1] === "/") {
+                    path = path.substring(0, path.length - 1);
+                    this.$.directory.setAttribute("path", path);
+                    this.$.directory.removeAttribute("hidden");
+                    this.$.file.setAttribute("hidden", "true");
+                } else {
+                    this.$.file.setAttribute("path", path);
+                    this.$.file.removeAttribute("hidden");
+                    this.$.directory.setAttribute("hidden", "true");
+                }
+            },
+        });
+    </script>
+</polymer-element>

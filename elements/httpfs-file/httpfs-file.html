@@ -1,0 +1,24 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="httpfs-file" attributes="path url">
+    <template>
+        <img id="image" src="{{url}}/read?path={{path}}"/>
+    </template>
+    <script>
+        Polymer("httpfs-file", {
+            hidden: false,
+            hiddenChanged: function (oldValue, newValue) {
+                if (newValue) {
+                    this.style.display = "none";
+                } else {
+                    delete this.style.display;
+                }
+            },
+            pathChanged: function (oldPath, newPath) {
+                console.log("Path changed to ", newPath);
+
+                this.$.image.src = "{{url}}/read?path=" + newPath;
+            }
+        });
+    </script>
+</polymer-element>

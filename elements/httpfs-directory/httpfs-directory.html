@@ -1,12 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
-<link rel="import" href="../fs-entry/fs-entry.html">
+<link rel="import" href="../httpfs-entry/httpfs-entry.html">
 
-<polymer-element name="fs-directory" attributes="path">
+<polymer-element name="httpfs-directory" attributes="path url hidden">
     <template>
         <core-ajax
             id="ajax"
-            url="http://localhost:9595/readdir" 
+            url="{{url}}/readdir" 
             params='{"path":"{{path}}"}'
             handleAs="json"
             on-core-response="{{handleResponse}}"
@@ -17,18 +17,13 @@
         <ol id="entries"></ol>
     </template>
     <script>
-        Polymer('fs-directory', {
-            ready: function () {
-                window.onhashchange = this.onhashchange.bind(this);
-            },
-            onhashchange: function (event) {
-                var newURL = event.newURL,
-                    hashIndex = newURL.indexOf("#");
-
-                if (hashIndex < 0) {
-                    this.path = "/";
+        Polymer('httpfs-directory', {
+            hidden: false,
+            hiddenChanged: function (oldValue, newValue) {
+                if (newValue) {
+                    this.style.display = "none";
                 } else {
-                    this.path = newURL.substring(hashIndex + 1, newURL.length);
+                    delete this.style.display;
                 }
             },
             pathChanged: function (oldPath, newPath) {
@@ -46,7 +41,7 @@
 
                 entries.forEach(function (entry) {
                     var li = document.createElement("li"),
-                        el = document.createElement("fs-entry");
+                        el = document.createElement("httpfs-entry");
                     
                     el.setAttribute("basedir", basedir);
                     el.setAttribute("name", entry.name);
