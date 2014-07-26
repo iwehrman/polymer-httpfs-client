@@ -4,7 +4,13 @@
 
 <polymer-element name="httpfs-client" attributes="host port">
     <template>
-        <httpfs-directory id="directory" path="/" url="http://{{host}}:{{port}}"></httpfs-directory>
+        <core-ajax
+            id="ajax"
+            url="{{url}}/stat" 
+            handleAs="json"
+            on-core-response="{{handleStat}}">
+        </core-ajax>
+        <httpfs-directory id="directory" url="http://{{host}}:{{port}}" hidden="true"></httpfs-directory>
         <httpfs-file id="file" url="http://{{host}}:{{port}}" hidden="true"></httpfs-file>
     </template>
     <script>
@@ -12,7 +18,35 @@
             ready: function () {
                 this.host = this.host || "localhost";
                 this.port = this.port || "9595";
+                this.url = "http://" + this.host + ":" + this.port
+                
+                this.setPathFromHref();
                 window.onhashchange = this.onhashchange.bind(this);
+            },
+            setPathFromHref: function () {
+                var hash = window.location.hash,
+                    hashIndex = hash.indexOf("#");
+
+                if (hashIndex !== 0) {
+                    this.path = "/";
+                } else {
+                    var path = hash.substring(1, hash.length).trim();
+                    this.$.ajax.params = '{ "path": "' + path + '"}';
+                    this.$.ajax.go();
+                }
+            },
+            handleStat: function (event, xhr) {
+                var stats = xhr.response,
+                    path = stats.path;
+
+                if (stats.isDir) {
+                    path += "/";
+                }
+
+                this.updatePath(path);
+            },
+            pathChanged: function (oldPath, newPath) {
+                this.updatePath(newPath);
             },
             onhashchange: function (event) {
                 var newURL = event.newURL,
@@ -25,8 +59,10 @@
                     path = newURL.substring(hashIndex + 1, newURL.length);
                 }
 
+                this.path = path;
+            },
+            updatePath: function (path) {
                 if (path[path.length - 1] === "/") {
-                    path = path.substring(0, path.length - 1);
                     this.$.directory.setAttribute("path", path);
                     this.$.directory.removeAttribute("hidden");
                     this.$.file.setAttribute("hidden", "true");
@@ -34,8 +70,8 @@
                     this.$.file.setAttribute("path", path);
                     this.$.file.removeAttribute("hidden");
                     this.$.directory.setAttribute("hidden", "true");
-                }
-            },
+                }                
+            }
         });
     </script>
 </polymer-element>

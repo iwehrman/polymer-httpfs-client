@@ -7,10 +7,8 @@
         <core-ajax
             id="ajax"
             url="{{url}}/readdir" 
-            params='{"path":"{{path}}"}'
             handleAs="json"
-            on-core-response="{{handleResponse}}"
-            auto>
+            on-core-response="{{handleResponse}}">
         </core-ajax>
 
         <header>Directory: {{path}}</header>
@@ -18,6 +16,11 @@
     </template>
     <script>
         Polymer('httpfs-directory', {
+            ready: function () {
+                if (this.path) {
+                    this.execute();
+                }
+            },
             hidden: false,
             hiddenChanged: function (oldValue, newValue) {
                 if (newValue) {
@@ -27,17 +30,23 @@
                 }
             },
             pathChanged: function (oldPath, newPath) {
+                console.assert(newPath[newPath.length - 1] === "/", "Path must end in /");
                 console.log("Path changed to ", newPath);
-
-                this.$.entries.innerHTML = "";
-
-                var params = '{"path":"' + newPath + '"}';
+                this.execute();
+            },
+            execute: function () {
+                var newPath = this.path;
+                // var params = '{"path":"' + newPath + '"}';
+                var params = '{"path":"' + newPath.substring(0, newPath.length - 1) + '"}';
                 this.$.ajax.setAttribute("params", params);
+                this.$.ajax.go();
             },
             handleResponse: function (event, xhr) {
                 var entries = xhr.response,
                     basedir = this.path,
                     root = this.$.entries;
+
+                this.$.entries.innerHTML = "";
 
                 entries.forEach(function (entry) {
                     var li = document.createElement("li"),
