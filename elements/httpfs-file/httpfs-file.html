@@ -2,22 +2,76 @@
 
 <polymer-element name="httpfs-file" attributes="path url">
     <template>
-        <img id="image" src="{{url}}/read?path={{path}}"/>
+        <core-ajax
+            id="ajax"
+            url="{{url}}/read"
+            handleAs="arraybuffer"
+            on-core-response="{{handleResponse}}">
+        </core-ajax>
+        <div id="container"></div>
     </template>
     <script>
         Polymer("httpfs-file", {
+            ready: function () {
+                if (this.path) {
+                    this.updatePath();
+                }
+            },
             hidden: false,
             hiddenChanged: function (oldValue, newValue) {
                 if (newValue) {
                     this.style.display = "none";
+                    this.$.container.innerHTML = "";
                 } else {
                     delete this.style.display;
                 }
             },
             pathChanged: function (oldPath, newPath) {
                 console.log("Path changed to ", newPath);
+                this.updatePath(newPath)
+            },
+            updatePath: function (path) {
+                var params = '{ "path": "' + path + '"}';
 
-                this.$.image.src = "{{url}}/read?path=" + newPath;
+                this.$.ajax.params = params;
+                this.$.ajax.go();
+            },
+            handleResponse: function (event, result) {
+                var response = result.response,
+                    xhr = result.xhr,
+                    contentType = xhr.getResponseHeader("content-type");
+
+                switch (contentType) {
+                    case "image/png":
+                    case "image/gif":
+                    case "image/jpeg":
+                        this.handleImage(response, xhr);
+                        break;
+                    case "text/plain; charset=utf-8":
+                        this.handleUTF8(response, xhr);
+                        break;
+                    default:
+                        console.log("Unknown content type:", contentType);
+                        this.handleUnknown(response, xhr);
+                }
+            },
+            handleImage: function (response, xhr) {
+                var contentType = xhr.getResponseHeader("content-type")
+                    blob = new Blob([response], {type: contentType}),
+                    url = URL.createObjectURL(blob);
+
+                this.$.container.innerHTML = "<img src='" + url + "'/>";
+                URL.revokeObjectURL(blob);
+            },
+            handleUTF8: function () {
+                var typedArray = new Uint8Array(response, response.length),
+                    encodedString = String.fromCharCode.apply(null, typedArray),
+                    decodedString = decodeURIComponent(escape(encodedString));
+
+                this.$.container.innerHTML = decodedString;
+            },
+            handleUnknown: function (response, xhr) {
+
             }
         });
     </script>
