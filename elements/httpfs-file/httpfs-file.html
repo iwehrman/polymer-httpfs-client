@@ -10,6 +10,8 @@
         </core-ajax>
         <div id="container"></div>
     </template>
+    <script src="../../bower_components/text-encoding/lib/encoding-indexes.js"></script>
+    <script src="../../bower_components/text-encoding/lib/encoding.js"></script>
     <script>
         Polymer("httpfs-file", {
             ready: function () {
@@ -31,7 +33,7 @@
                 this.updatePath(newPath)
             },
             updatePath: function (path) {
-                var params = '{ "path": "' + path + '"}';
+                var params = '{"path": "' + path + '"}';
 
                 this.$.ajax.params = params;
                 this.$.ajax.go();
@@ -56,17 +58,28 @@
                 }
             },
             handleImage: function (response, xhr) {
+                var hasURL = URL.hasOwnProperty("createObjectURL"),
+                    createObjectURL,
+                    revokeObjectURL;
+
+                if (hasURL) {
+                    createObjectURL = URL.createObjectURL;
+                    revokeObjectURL = URL.revokeObjectURL;
+                } else {
+                    createObjectURL = webkitURL.createObjectURL;
+                    revokeObjectURL = webkitURL.revokeObjectURL;
+                }
+
                 var contentType = xhr.getResponseHeader("content-type")
                     blob = new Blob([response], {type: contentType}),
-                    url = URL.createObjectURL(blob);
+                    url = createObjectURL(blob);
 
                 this.$.container.innerHTML = "<img src='" + url + "'/>";
-                URL.revokeObjectURL(blob);
+                revokeObjectURL(blob);
             },
-            handleUTF8: function () {
-                var typedArray = new Uint8Array(response, response.length),
-                    encodedString = String.fromCharCode.apply(null, typedArray),
-                    decodedString = decodeURIComponent(escape(encodedString));
+            handleUTF8: function (response, xhr) {
+                var typedArray = new Uint8Array(response),
+                    decodedString = new TextDecoder("utf-8").decode(typedArray);
 
                 this.$.container.innerHTML = decodedString;
             },
