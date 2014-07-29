@@ -35,9 +35,11 @@
                 this.execute();
             },
             execute: function () {
-                var newPath = this.path;
-                // var params = '{"path":"' + newPath + '"}';
-                var params = '{"path":"' + newPath.substring(0, newPath.length - 1) + '"}';
+                var newPath = this.path,
+                    trimmedPath = newPath.length > 1 ?
+                        newPath.substring(0, newPath.length - 1) : newPath;
+
+                var params = '{"path":"' + trimmedPath + '"}';
                 this.$.ajax.setAttribute("params", params);
                 this.$.ajax.go();
             },
