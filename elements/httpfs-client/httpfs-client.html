@@ -31,6 +31,11 @@
                     this.path = "/";
                 } else {
                     var path = hash.substring(1, hash.length).trim();
+
+                    if (path !== "/" && path[path.length - 1] === "/") {
+                        path = path.substring(0, path.length - 1);
+                    }
+
                     this.$.ajax.params = '{ "path": "' + path + '"}';
                     this.$.ajax.go();
                 }
