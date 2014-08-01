@@ -16,7 +16,7 @@
     <script>
         Polymer("httpfs-client", {
             ready: function () {
-                this.host = this.host || "localhost";
+                this.host = this.host || window.location.hostname;
                 this.port = this.port || "9595";
                 this.url = "http://" + this.host + ":" + this.port
                 
