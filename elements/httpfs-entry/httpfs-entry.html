@@ -59,15 +59,15 @@
                 var extension = this.name.substring(dotIndex + 1, this.name.length);
                 extension = extension.trim().toLowerCase();
 
-                var extensionInfo = extensionInfo[extension];
-                if (!extensionInfo || !extensionInfo.image) {
+                var info = extensionInfo[extension];
+                if (!info || !info.image) {
                     return;
                 }
 
                 var path = this.basedir + this.name,
                     href = this.url + "/read?path=" + encodeURIComponent(path) + "&preview=1";
 
-                this.$.preview.innerHtml = "<img src='" + href + "'/>";
+                this.$.preview.innerHTML = "<img src='" + href + "'/>";
             }
         });
     </script>

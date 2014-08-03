@@ -48,23 +48,22 @@
                     basedir = this.path,
                     root = this.$.entries;
 
-                this.$.entries.innerHTML = "";
+                this.$.entries.innerHTML = entries.map(function (entry) {
+                    var entryHtml = "<httpfs-entry" +
+                        " url='" + this.url + "'" +
+                        " basedir='" + basedir + "'" +
+                        " name='" + entry.name + "'" +
+                        " mtime='" + entry.mtime + "'" +
+                        " size='" + entry.size + "'";
 
-                entries.forEach(function (entry) {
-                    var li = document.createElement("li"),
-                        el = document.createElement("httpfs-entry");
-                    
-                    el.setAttribute("basedir", basedir);
-                    el.setAttribute("name", entry.name);
-                    el.setAttribute("mtime", entry.mtime);
-                    el.setAttribute("size", entry.size);
                     if (entry.isDir) {
-                        el.setAttribute("directory", "directory");
+                        entryHtml += "directory='directory'";
                     }
 
-                    li.appendChild(el);
-                    root.appendChild(li);
-                });
+                    entryHtml += "></httpfs-entry>"
+
+                    return "<li>" + entryHtml + "</li>";
+                }, this).join("");
             }
         });
     </script>
