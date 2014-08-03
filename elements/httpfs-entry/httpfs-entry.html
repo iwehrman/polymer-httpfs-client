@@ -65,7 +65,8 @@
                 }
 
                 var path = this.basedir + this.name,
-                    href = this.url + "/read?path=" + encodeURIComponent(path) + "&preview=1";
+                    encodedPath = encodeURIComponent(path).replace(/\%20/g, "+"),
+                    href = this.url + "/read?path=" + encodedPath + "&preview=1";
 
                 this.$.preview.innerHTML = "<img src='" + href + "'/>";
             }

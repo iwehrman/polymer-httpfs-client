@@ -37,10 +37,11 @@
             execute: function () {
                 var newPath = this.path,
                     trimmedPath = newPath.length > 1 ?
-                        newPath.substring(0, newPath.length - 1) : newPath;
+                        newPath.substring(0, newPath.length - 1) : newPath,
+                    encodedPath = trimmedPath.replace(/ /g, "+");
 
-                var params = '{"path":"' + trimmedPath + '"}';
-                this.$.ajax.setAttribute("params", params);
+                var params = { path: encodedPath };
+                this.$.ajax.params = params;
                 this.$.ajax.go();
             },
             handleResponse: function (event, xhr) {

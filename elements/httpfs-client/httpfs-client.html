@@ -33,10 +33,11 @@
                     var path = hash.substring(1, hash.length).trim();
 
                     if (path !== "/" && path[path.length - 1] === "/") {
-                        path = path.substring(0, path.length - 1);
+                        path = path.substring(0, path.length - 1),
+                        encodedPath = path.replace(/ /g, "+");
                     }
 
-                    this.$.ajax.params = '{ "path": "' + path + '"}';
+                    this.$.ajax.params = { path: encodedPath };
                     this.$.ajax.go();
                 }
             },
