@@ -81,7 +81,7 @@
                 var typedArray = new Uint8Array(response),
                     decodedString = new TextDecoder("utf-8").decode(typedArray);
 
-                this.$.container.innerHTML = decodedString;
+                this.$.container.innerHTML = "<pre>" + decodedString + "</pre>";
             },
             handleUnknown: function (response, xhr) {
 
