@@ -4,6 +4,7 @@
 
 <polymer-element name="httpfs-directory" attributes="path url disabled">
     <template>
+        <link rel="stylesheet" href="httpfs-directory.css">
         <core-ajax
             id="ajax"
             url="{{url}}/readdir" 
@@ -20,6 +21,8 @@
                 if (this.path && !this.disabled) {
                     this.execute();
                 }
+
+                window.onscroll = this.handleScroll.bind(this);
             },
             disabled: false,
             disabledChanged: function (oldValue, newValue) {
@@ -72,6 +75,29 @@
                     li.appendChild(fsEntry);
                     root.appendChild(li);
                 }, this);
+
+                this.showVisibleEntries();
+            },
+            handleScroll: function (event) {
+                requestAnimationFrame(this.showVisibleEntries.bind(this));
+            },
+            showVisibleEntries: function () {
+                var top = window.scrollY,
+                    bottom = top + window.screen.height,
+                    entries = this.$.entries.children,
+                    entry,
+                    rect;
+
+                for (var i = entries.length - 1; i >= 0; i--) {
+                    entry = entries[i].children[0];
+                    rect = entry.getBoundingClientRect();
+
+                    if (rect.bottom < top || rect.top > bottom) {
+                        entry.setAttribute("disabled", "true");
+                    } else {
+                        entry.setAttribute("disabled", "false");
+                    }
+                }
             }
         });
     </script>

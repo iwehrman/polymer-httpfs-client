@@ -1,15 +1,15 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="httpfs-entry" attributes="url basedir name mtime size directory">
+<polymer-element name="httpfs-entry" attributes="url basedir name mtime size directory disabled">
     <template>
     <link rel="stylesheet" href="httpfs-entry.css">
-    <div id="preview">
-    </div>
-    <div id="info">
-        <a href='#{{basedir}}{{name}}{{directory ? "/" : ""}}'>{{name}}{{directory ? "/" : ""}}</a> -
-        {{mtime}} -
-        {{size}}
-    </div>
+        <div id="preview">
+        </div>
+        <div id="info">
+            <a href='#{{basedir}}{{name}}{{directory ? "/" : ""}}'>{{name}}{{directory ? "/" : ""}}</a> -
+            {{mtime}} -
+            {{size}}
+        </div>
     </template>
     <script>
 
@@ -46,7 +46,18 @@
 
         Polymer("httpfs-entry", {
             attached: function () {
-                if (!this.name || this.directory){
+                if (!this.disabled) {
+                    this.execute();
+                }
+            },
+            disabled: true,
+            disabledChanged: function (oldDisabled, disabled) {
+                if (!disabled) {
+                    this.execute();
+                }
+            },
+            execute: function () {
+                if (!this.name || this.directory) {
                     return;
                 }
 
@@ -71,7 +82,9 @@
                     href += "&retina=1";
                 }
 
-                var imgHtml = "<img src='" + href + "'/>";
+                var preview = this.$.preview,
+                    imgHtml = "<img src='" + href + "'/>";
+
                 this.$.preview.innerHTML = imgHtml;
             }
         });
