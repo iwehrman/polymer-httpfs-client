@@ -51,7 +51,8 @@
                 }
             },
             updatePath: function (path) {
-                var params = '{"path": "' + path + '"}';
+                var encodedPath = path.replace(/ /g, "+"),
+                    params = { path: encodedPath };
 
                 this.$.ajax.params = params;
                 this.$.ajax.go();
