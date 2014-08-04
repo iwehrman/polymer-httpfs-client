@@ -13,6 +13,21 @@
     <script src="../../bower_components/text-encoding/lib/encoding-indexes.js"></script>
     <script src="../../bower_components/text-encoding/lib/encoding.js"></script>
     <script>
+        var entityMap = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '&quot;',
+            "'": '&#39;',
+            "/": '&#x2F;'
+        };
+
+        function escapeHtml(string) {
+            return String(string).replace(/[&<>"'\/]/g, function (s) {
+                return entityMap[s];
+            });
+        }
+
         Polymer("httpfs-file", {
             ready: function () {
                 if (this.path) {
@@ -22,8 +37,8 @@
             hidden: false,
             hiddenChanged: function (oldValue, newValue) {
                 if (newValue) {
-                    this.style.display = "none";
                     this.$.container.innerHTML = "";
+                    this.style.display = "none";
                 } else {
                     this.style.display = "";
                 }
@@ -50,6 +65,7 @@
                         this.handleImage(response, xhr);
                         break;
                     case "text/plain; charset=utf-8":
+                    case "text/html; charset=utf-8":
                         this.handleUTF8(response, xhr);
                         break;
                     default:
@@ -79,9 +95,10 @@
             },
             handleUTF8: function (response, xhr) {
                 var typedArray = new Uint8Array(response),
-                    decodedString = new TextDecoder("utf-8").decode(typedArray);
+                    decodedString = new TextDecoder("utf-8").decode(typedArray),
+                    escapedString = escapeHtml(decodedString);
 
-                this.$.container.innerHTML = "<pre>" + decodedString + "</pre>";
+                this.$.container.innerHTML = "<pre>" + escapedString + "</pre>";
             },
             handleUnknown: function (response, xhr) {
 
