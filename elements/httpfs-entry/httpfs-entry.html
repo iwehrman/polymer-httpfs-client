@@ -45,7 +45,7 @@
         };
 
         Polymer("httpfs-entry", {
-            ready: function () {
+            attached: function () {
                 if (!this.name || this.directory){
                     return;
                 }

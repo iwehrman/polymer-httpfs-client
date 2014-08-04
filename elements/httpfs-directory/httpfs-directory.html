@@ -49,22 +49,27 @@
                     basedir = this.path,
                     root = this.$.entries;
 
-                this.$.entries.innerHTML = entries.map(function (entry) {
-                    var entryHtml = "<httpfs-entry" +
-                        " url='" + this.url + "'" +
-                        " basedir='" + basedir + "'" +
-                        " name='" + entry.name + "'" +
-                        " mtime='" + entry.mtime + "'" +
-                        " size='" + entry.size + "'";
+                while (root.lastChild) {
+                    root.removeChild(root.lastChild);
+                }
+
+                entries.forEach(function (entry) {
+                    var fsEntry = document.createElement("httpfs-entry");
+
+                    fsEntry.setAttribute("url", this.url);
+                    fsEntry.setAttribute("basedir", basedir);
+                    fsEntry.setAttribute("name", entry.name);
+                    fsEntry.setAttribute("mtime", entry.mtime);
+                    fsEntry.setAttribute("size", entry.size);
 
                     if (entry.isDir) {
-                        entryHtml += "directory='directory'";
+                        fsEntry.setAttribute("directory", "directory");
                     }
 
-                    entryHtml += "></httpfs-entry>"
-
-                    return "<li>" + entryHtml + "</li>";
-                }, this).join("");
+                    var li = document.createElement("li");
+                    li.appendChild(fsEntry);
+                    root.appendChild(li);
+                }, this);
             }
         });
     </script>
