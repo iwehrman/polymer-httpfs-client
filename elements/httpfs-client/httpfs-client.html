@@ -10,11 +10,22 @@
             handleAs="json"
             on-core-response="{{handleStat}}">
         </core-ajax>
-        <httpfs-directory id="directory" url="http://{{host}}:{{port}}" hidden="true"></httpfs-directory>
-        <httpfs-file id="file" url="http://{{host}}:{{port}}" hidden="true"></httpfs-file>
+        <httpfs-directory
+            id="directory"
+            url="http://{{host}}:{{port}}"
+            path={{path}}
+            disabled="{{!isDirectory}}">
+        </httpfs-directory>
+        <httpfs-file
+            id="file"
+            url="http://{{host}}:{{port}}"
+            path={{path}}
+            disabled="{{isDirectory}}">
+        </httpfs-file>
     </template>
     <script>
         Polymer("httpfs-client", {
+            isDirectory: true,
             ready: function () {
                 this.host = this.host || window.location.hostname;
                 this.port = this.port || "9595";
@@ -45,14 +56,14 @@
                 var stats = xhr.response,
                     path = stats.path;
 
-                if (stats.isDir) {
+                if (stats.isDir && path !== "/") {
                     path += "/";
                 }
 
-                this.updatePath(path);
+                this.path = path;
             },
-            pathChanged: function (oldPath, newPath) {
-                this.updatePath(newPath);
+            pathChanged: function (oldPath, path) {
+                this.isDirectory = path[path.length - 1] === "/";
             },
             onhashchange: function (event) {
                 var newURL = event.newURL,
@@ -66,17 +77,6 @@
                 }
 
                 this.path = path;
-            },
-            updatePath: function (path) {
-                if (path[path.length - 1] === "/") {
-                    this.$.directory.setAttribute("path", path);
-                    this.$.directory.removeAttribute("hidden");
-                    this.$.file.setAttribute("hidden", "true");
-                } else {
-                    this.$.file.setAttribute("path", path);
-                    this.$.file.removeAttribute("hidden");
-                    this.$.directory.setAttribute("hidden", "true");
-                }                
             }
         });
     </script>

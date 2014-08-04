@@ -2,7 +2,7 @@
 <link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="../httpfs-entry/httpfs-entry.html">
 
-<polymer-element name="httpfs-directory" attributes="path url hidden">
+<polymer-element name="httpfs-directory" attributes="path url disabled">
     <template>
         <core-ajax
             id="ajax"
@@ -17,12 +17,12 @@
     <script>
         Polymer('httpfs-directory', {
             ready: function () {
-                if (this.path) {
+                if (this.path && !this.disabled) {
                     this.execute();
                 }
             },
-            hidden: false,
-            hiddenChanged: function (oldValue, newValue) {
+            disabled: false,
+            disabledChanged: function (oldValue, newValue) {
                 if (newValue) {
                     this.style.display = "none";
                 } else {
@@ -30,9 +30,11 @@
                 }
             },
             pathChanged: function (oldPath, newPath) {
-                console.assert(newPath[newPath.length - 1] === "/", "Path must end in /");
-                console.log("Path changed to ", newPath);
-                this.execute();
+                if (!this.disabled) {
+                    console.assert(newPath[newPath.length - 1] === "/", "Path must end in /");
+                    console.log("Path changed to ", newPath);
+                    this.execute();
+                }
             },
             execute: function () {
                 var newPath = this.path,
