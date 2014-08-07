@@ -1,16 +1,17 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="../httpfs-ajax/httpfs-ajax.html">
 <link rel="import" href="../httpfs-entry/httpfs-entry.html">
 
 <polymer-element name="httpfs-directory" attributes="path url disabled">
     <template>
         <link rel="stylesheet" href="httpfs-directory.css">
-        <core-ajax
+        <httpfs-ajax
             id="ajax"
-            url="{{url}}/readdir" 
+            url="{{url}}" 
+            resource="readdir"
             handleAs="json"
-            on-core-response="{{handleResponse}}">
-        </core-ajax>
+            on-httpfs-response="{{handleResponse}}">
+        </httpfs-ajax>
 
         <header>Directory: {{path}}</header>
         <ol id="entries"></ol>
@@ -40,13 +41,7 @@
                 }
             },
             execute: function () {
-                var newPath = this.path,
-                    trimmedPath = newPath.length > 1 ?
-                        newPath.substring(0, newPath.length - 1) : newPath,
-                    encodedPath = trimmedPath.replace(/ /g, "+");
-
-                var params = { path: encodedPath };
-                this.$.ajax.params = params;
+                this.$.ajax.path = this.path;
                 this.$.ajax.go();
             },
             handleResponse: function (event, xhr) {
@@ -66,6 +61,7 @@
                     fsEntry.setAttribute("name", entry.name);
                     fsEntry.setAttribute("mtime", entry.mtime);
                     fsEntry.setAttribute("size", entry.size);
+                    fsEntry.setAttribute("disabled", "true");
 
                     if (entry.isDir) {
                         fsEntry.setAttribute("directory", "directory");

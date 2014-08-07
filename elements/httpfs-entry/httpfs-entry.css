@@ -1,12 +1,12 @@
 :host {
     display: block;
+    min-width: 200px;
     height: 200px;
     border: 1px solid grey;
-    min-width: 100px;
     float: left;
 }
 
 img {
     max-height: 200px;
-    max-width: 200px;
+    /*max-width: 200px;*/
 }

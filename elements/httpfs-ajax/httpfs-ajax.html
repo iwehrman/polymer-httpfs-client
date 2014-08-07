@@ -1,0 +1,53 @@
+<link rel="import" href="../../bower_components/core-ajax/core-ajax.html">
+
+<polymer-element name="httpfs-ajax" attributes="url handleAs method resource path retina preview">
+    <template>
+        <core-ajax id="ajax" 
+            handleAs={{handleAs}}
+            method={{method}}
+            on-core-response={{handleResponse}}>
+        </core-ajax>
+    </template>
+    <script>
+        var cleanPath = function (path) {
+            path = path.trim();
+
+            if (path.length > 1 && path[path.length - 1] === "/") {
+                path = path.substring(0, path.length - 1);
+            }
+
+            return encodeURIComponent(path)
+                .replace(/\%20/g, "+")
+                .replace(/[!'()]/g, escape)
+                .replace(/\*/g, "%2A");
+        };
+
+        Polymer("httpfs-ajax", {
+            url: "",
+            method: "",
+            resource: "",
+            path: "",
+            retina: false,
+            preview: false,
+            go: function () {
+                var ajax = this.$.ajax,
+                    path = cleanPath(this.path),
+                    url = this.url + "/" + this.resource + "?path=" + path;
+
+                if (this.preview) {
+                    url += "&preview=1";
+                }
+
+                if (this.retina) {
+                    url += "&retina=1";
+                }
+
+                ajax.url = url;
+                ajax.go();
+            },
+            handleResponse: function (event, response) {
+                this.fire('httpfs-response', response);
+            }
+        });
+    </script>
+</polymer-element>
