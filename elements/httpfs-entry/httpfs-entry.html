@@ -1,8 +1,17 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../httpfs-url/httpfs-url.html">
 
-<polymer-element name="httpfs-entry" attributes="url basedir name mtime size directory disabled">
+<polymer-element name="httpfs-entry" attributes="hostname port path basedir name mtime size directory disabled">
     <template>
-    <link rel="stylesheet" href="httpfs-entry.css">
+        <link rel="stylesheet" href="httpfs-entry.css">
+
+        <httpfs-url id="url"
+            hostname={{hostname}}
+            port={{port}}
+            resource="read"
+            preview="true"
+        </httpfs-url>
+
         <div id="preview">
         </div>
         <div id="info">
@@ -12,7 +21,6 @@
         </div>
     </template>
     <script>
-
         var extensionInfo = {
             "jpg": {
                 contentType: "image/jpeg",
@@ -53,6 +61,11 @@
 
         Polymer("httpfs-entry", {
             attached: function () {
+                this.url = "http://" + this.host;
+                if (this.port && this.port !== 80) {
+                    this.url += ":80";
+                }
+
                 if (!this.disabled) {
                     this.execute();
                 }
@@ -81,15 +94,12 @@
                     return;
                 }
 
-                var path = this.basedir + this.name,
-                    encodedPath = escapePath(path),
-                    href = this.url + "/read?path=" + encodedPath + "&preview=1";
+                var httpfsUrl = this.$.url;
+                httpfsUrl.path = this.basedir + this.name;
+                httpfsUrl.retina = window.devicePixelRatio === 2;
 
-                if (window.devicePixelRatio === 2) {
-                    href += "&retina=1";
-                }
-
-                var preview = this.$.preview,
+                var href = httpfsUrl.getUrl(),
+                    preview = this.$.preview,
                     imgHtml = "<img src='" + href + "'/>";
 
                 this.$.preview.innerHTML = imgHtml;

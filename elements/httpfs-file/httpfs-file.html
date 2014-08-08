@@ -1,13 +1,16 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../httpfs-ajax/httpfs-ajax.html">
 
-<polymer-element name="httpfs-file" attributes="path url disabled">
+<polymer-element name="httpfs-file" attributes="hostname port path disabled">
     <template>
-        <core-ajax
+        <httpfs-ajax
             id="ajax"
-            url="{{url}}/read"
+            hostname={{hostname}}
+            port={{port}}
+            resource="read"
             handleAs="arraybuffer"
-            on-core-response="{{handleResponse}}">
-        </core-ajax>
+            on-httpfs-response="{{handleResponse}}">
+        </httpfs-ajax>
         <div id="container"></div>
     </template>
     <script src="../../bower_components/text-encoding/lib/encoding-indexes.js"></script>
@@ -51,10 +54,7 @@
                 }
             },
             updatePath: function (path) {
-                var encodedPath = path.replace(/ /g, "+"),
-                    params = { path: encodedPath };
-
-                this.$.ajax.params = params;
+                this.$.ajax.path = path;
                 this.$.ajax.go();
             },
             handleResponse: function (event, result) {

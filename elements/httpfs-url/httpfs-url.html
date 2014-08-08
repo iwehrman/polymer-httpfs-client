@@ -1,0 +1,47 @@
+<polymer-element name="httpfs-url" attributes="scheme hostname port resource path retina preview">
+    <script>
+        var cleanPath = function (path) {
+            path = path.trim();
+
+            if (path.length > 1 && path[path.length - 1] === "/") {
+                path = path.substring(0, path.length - 1);
+            }
+
+            return encodeURIComponent(path)
+                .replace(/\%20/g, "+")
+                .replace(/[!'()]/g, escape)
+                .replace(/\*/g, "%2A");
+        };
+
+        Polymer("httpfs-url", {
+            scheme: "http",
+            hostname: "",
+            port: 80,
+            resource: "",
+            path: "",
+            retina: false,
+            preview: false,
+            getUrl: function () {
+                var path = cleanPath(this.path),
+                    scheme = this.scheme,
+                    url = scheme + "://" + this.hostname;
+
+                if (this.port !== 80){
+                    url += ":" + this.port
+                }
+
+                url += "/" + this.resource + "?path=" + path;
+
+                if (this.preview) {
+                    url += "&preview=1";
+                }
+
+                if (this.retina) {
+                    url += "&retina=1";
+                }
+
+                return url;
+            }
+        });
+    </script>
+</polymer-element>
