@@ -15,9 +15,12 @@
         <div id="preview">
         </div>
         <div id="info">
-            <a href='#{{basedir}}{{name}}{{directory ? "/" : ""}}'>{{name}}{{directory ? "/" : ""}}</a> -
-            {{mtime}} -
-            {{size}}
+            <div id="title">
+                <a href='{{href}}'>{{title}}</a>
+            </div>
+            <div id="stats">
+                <time>{{mtime}}</time> - {{size}}
+            </div>
         </div>
     </template>
     <script>
@@ -66,6 +69,10 @@
                     this.url += ":80";
                 }
 
+                this.path = this.basedir + this.name;
+                this.title = this.name + (this.directory ? "/" : "");
+                this.href = "#" + this.basedir + this.title;
+
                 if (!this.disabled) {
                     this.execute();
                 }
@@ -95,14 +102,15 @@
                 }
 
                 var httpfsUrl = this.$.url;
-                httpfsUrl.path = this.basedir + this.name;
+                httpfsUrl.path = this.path;
                 httpfsUrl.retina = window.devicePixelRatio === 2;
 
                 var href = httpfsUrl.getUrl(),
                     preview = this.$.preview,
-                    imgHtml = "<img src='" + href + "'/>";
+                    imgHtml = "<img src='" + href + "'/>",
+                    aHtml = "<a href='" + this.href + "'>" + imgHtml + "</a>"
 
-                this.$.preview.innerHTML = imgHtml;
+                this.$.preview.innerHTML = aHtml;
             }
         });
     </script>
