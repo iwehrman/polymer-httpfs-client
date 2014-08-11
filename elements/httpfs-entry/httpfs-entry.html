@@ -13,10 +13,11 @@
         </httpfs-url>
 
         <div id="preview">
+            <a href={{href}} on-click={{handleClick}}></a>
         </div>
         <div id="info">
             <div id="title">
-                <a href='{{href}}'>{{title}}</a>
+                <a href={{href}} on-click={{handleClick}}>{{title}}</a>
             </div>
             <div id="stats">
                 <time>{{mtime}}</time> - {{size}}
@@ -108,9 +109,18 @@
                 var href = httpfsUrl.getUrl(),
                     preview = this.$.preview,
                     imgHtml = "<img src='" + href + "'/>",
-                    aHtml = "<a href='" + this.href + "'>" + imgHtml + "</a>"
+                    anchor = this.$.preview.children[0];
 
-                this.$.preview.innerHTML = aHtml;
+                anchor.innerHTML = imgHtml;
+                anchor.style.display = "inline";
+            },
+            handleClick: function (event) {
+                this.fire("load-entry", {
+                    path: this.path + (this.directory ? "/" : ""),
+                    isDir: this.directory
+                });
+
+                event.preventDefault();
             }
         });
     </script>

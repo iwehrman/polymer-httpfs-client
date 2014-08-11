@@ -15,11 +15,31 @@
         </httpfs-ajax>
 
         <header>Directory: {{path}}</header>
-        <ol id="entries"></ol>
+        <ol id="entries">
+            <template repeat="{{entry in entries}}">
+                <li>
+                    <httpfs-entry
+                        hostname={{hostname}}
+                        port={{port}}
+                        basedir={{path}}
+                        name={{entry.name}}
+                        mtime={{entry.mtime}}
+                        size={{entry.size}}
+                        directory={{entry.isDir}}
+                        disabled="true">
+                    </httpfs-entry>
+                </li>
+            </template>
+        </ol>
     </template>
     <script>
         Polymer('httpfs-directory', {
+            entries: null,
             ready: function () {
+                //this.onMutation(this, this.handleChange);
+                var observer = new MutationObserver(this.handleChange.bind(this));
+                observer.observe(this.$.entries, { childList: true, subtree: true });
+
                 if (this.path && !this.disabled) {
                     this.execute();
                 }
@@ -32,6 +52,7 @@
                     this.style.display = "none";
                 } else {
                     this.style.display = "";
+                    this.handleChange();
                 }
             },
             pathChanged: function (oldPath, newPath) {
@@ -46,48 +67,20 @@
                 this.$.ajax.go();
             },
             handleResponse: function (event, xhr) {
-                var entries = xhr.response,
-                    basedir = this.path,
-                    root = this.$.entries;
-
-                while (root.lastChild) {
-                    root.removeChild(root.lastChild);
-                }
-
-                entries.forEach(function (entry) {
-                    var fsEntry = document.createElement("httpfs-entry");
-
-                    fsEntry.setAttribute("hostname", this.hostname);
-                    fsEntry.setAttribute("port", this.port);
-                    fsEntry.setAttribute("basedir", basedir);
-                    fsEntry.setAttribute("name", entry.name);
-                    fsEntry.setAttribute("mtime", entry.mtime);
-                    fsEntry.setAttribute("size", entry.size);
-                    fsEntry.setAttribute("disabled", "true");
-
-                    if (entry.isDir) {
-                        fsEntry.setAttribute("directory", "directory");
-                    }
-
-                    var li = document.createElement("li");
-                    li.appendChild(fsEntry);
-                    root.appendChild(li);
-                }, this);
-
-                this.showVisibleEntries();
+                this.entries = xhr.response;
             },
-            handleScroll: function (event) {
+            handleScroll: function () {
                 requestAnimationFrame(this.showVisibleEntries.bind(this));
             },
             showVisibleEntries: function () {
                 var top = window.scrollY,
                     bottom = top + window.screen.height,
-                    entries = this.$.entries.children,
+                    entries = this.shadowRoot.querySelectorAll("httpfs-entry"),
                     entry,
                     rect;
 
                 for (var i = entries.length - 1; i >= 0; i--) {
-                    entry = entries[i].children[0];
+                    entry = entries[i];
                     rect = entry.getBoundingClientRect();
 
                     if (rect.bottom < top || rect.top > bottom) {
@@ -96,6 +89,10 @@
                         entry.setAttribute("disabled", "false");
                     }
                 }
+            },
+            handleChange: function () {
+                this.fire("entries-changed");
+                this.handleScroll();
             }
         });
     </script>

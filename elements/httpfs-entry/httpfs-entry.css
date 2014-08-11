@@ -15,6 +15,25 @@ img {
     height: 200px;
 }
 
+#preview a {
+    display: none;
+}
+
+#info {
+    font-family: helvetica, arial, sans-serif;
+    font-size: 0.8em;
+    color: grey;
+}
+
+#info a {
+    color: grey;
+}
+
+#info a:visited {
+    color: darkgrey;
+}
+
 #title {
     clear: right;
+
 }

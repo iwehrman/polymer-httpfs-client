@@ -11,38 +11,41 @@
             port={{port}}
             resource="stat"
             handleAs="json"
-            on-httpfs-response="{{handleStat}}">
+            on-httpfs-response={{handleStat}}>
         </httpfs-ajax>
         <httpfs-directory
             id="directory"
             hostname={{hostname}}
             port={{port}}
             path={{path}}
-            disabled="{{!isDirectory}}">
+            disabled={{!isDirectory}}
+            on-load-entry={{handleLoadEntry}}
+            on-entries-changed={{handleEntriesChanged}}>
         </httpfs-directory>
         <httpfs-file
             id="file"
             hostname={{hostname}}
             port={{port}}
             path={{path}}
-            disabled="{{isDirectory}}">
+            disabled={{!isFile}}>
         </httpfs-file>
     </template>
     <script>
         Polymer("httpfs-client", {
-            isDirectory: true,
+            isDirectory: false,
+            isFile: false,
             hostname: window.location.hostname,
             port: 9595,
             ready: function () {
                 this.setPathFromHref();
-                window.onhashchange = this.onhashchange.bind(this);
+                window.onpopstate = this.handlePopState.bind(this);
             },
             setPathFromHref: function () {
                 var hash = window.location.hash,
                     hashIndex = hash.indexOf("#");
 
                 if (hashIndex !== 0) {
-                    this.path = "/";
+                    this.loadPage("/", true);
                 } else {
                     var path = hash.substring(1, hash.length).trim();
 
@@ -54,27 +57,51 @@
                 var stats = xhr.response,
                     path = stats.path;
 
-                if (stats.isDir && path !== "/") {
-                    path += "/";
+                if (stats.isDir) {
+                    if (path !== "/") {
+                        path += "/";
+                    }
                 }
 
-                this.path = path;
+                this.loadPage(path, stats.isDir);
             },
-            pathChanged: function (oldPath, path) {
-                this.isDirectory = path[path.length - 1] === "/";
-            },
-            onhashchange: function (event) {
-                var newURL = event.newURL,
-                    hashIndex = newURL.indexOf("#"),
-                    path;
+            handleLoadEntry: function (event, args) {
+                history.replaceState({
+                    path: this.path,
+                    isDirectory: this.isDirectory,
+                    scrollX: window.scrollX,
+                    scrollY: window.scrollY
+                });
+    
+                this.loadPage(args.path, args.isDir);
 
-                if (hashIndex < 0) {
-                    path = "/";
+                window.scrollTo(0, 0);
+
+                history.pushState({
+                    path: this.path,
+                    isDirectory: this.isDirectory,
+                    scrollX: 0,
+                    scrollY: 0
+                }, args.path, "#" + args.path);
+            },
+            loadPage: function (path, isDirectory) {
+                this.path = path;
+                this.isFile = !isDirectory;
+                this.isDirectory = isDirectory;
+            },
+            handlePopState: function () {
+                if (history.state) {
+                    this.loadPage(history.state.path, history.state.isDirectory);
                 } else {
-                    path = newURL.substring(hashIndex + 1, newURL.length);
+                    this.setPathFromHref();
                 }
-
-                this.path = path;
+            },
+            handleEntriesChanged: function () {
+                if (history.state) {
+                    window.scrollTo(history.state.scrollX, history.state.scrollY);
+                } else {
+                    window.scrollTo(0, 0);
+                }                
             }
         });
     </script>
