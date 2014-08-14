@@ -2,7 +2,7 @@
 <link rel="import" href="../httpfs-ajax/httpfs-ajax.html">
 <link rel="import" href="../httpfs-entry/httpfs-entry.html">
 
-<polymer-element name="httpfs-directory" attributes="hostname port path disabled">
+<polymer-element name="httpfs-directory" attributes="hostname port path disabled sort desc">
     <template>
         <link rel="stylesheet" href="httpfs-directory.css">
         <httpfs-ajax
@@ -35,6 +35,18 @@
     <script>
         Polymer('httpfs-directory', {
             entries: null,
+            sort: "name",
+            sortChanged: function (oldSort, newSort) {
+                if (!this.disabled) {
+                    this.updateEntries(this.entries);
+                }
+            },
+            desc: false,
+            descChanged: function () {
+                if (!this.disabled) {
+                    this.updateEntries(this.entries);
+                }  
+            },
             ready: function () {
                 //this.onMutation(this, this.handleChange);
                 var observer = new MutationObserver(this.handleChange.bind(this));
@@ -67,7 +79,30 @@
                 this.$.ajax.go();
             },
             handleResponse: function (event, xhr) {
-                this.entries = xhr.response;
+                this.updateEntries(xhr.response);
+            },
+            updateEntries: function (entries) {
+                if (!entries) {
+                    return;
+                }
+
+                var sort = this.sort,
+                    desc = this.desc ? 1 : -1,
+                    prop = this.sort;
+
+                this.entries = entries.sort(function (a, b) {
+                    var aval = a[prop],
+                        bval = b[prop];
+
+                    if (aval < bval) {
+                        return desc;
+                    } else if (bval < aval) {
+                        return -1 * desc;
+                    } else {
+                        return 0;
+                    }
+                });
+
             },
             handleScroll: function () {
                 requestAnimationFrame(this.showVisibleEntries.bind(this));
