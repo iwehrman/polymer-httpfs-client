@@ -13,11 +13,11 @@
         </httpfs-url>
 
         <div id="preview">
-            <a href={{href}} on-click={{handleClick}}></a>
+            <a href="#{{basedir}}{{name}}{{directory ? '/' : ''}}" on-click={{handleClick}}></a>
         </div>
         <div id="info">
             <div id="title">
-                <a href={{href}} on-click={{handleClick}}>{{name}}{{directory ? "/" : ""}}</a>
+                <a href="#{{basedir}}{{name}}{{directory ? '/' : ''}}" on-click={{handleClick}}>{{name}}{{directory ? "/" : ""}}</a>
             </div>
             <div id="stats">
                 <time>{{mtime}}</time> - {{size}}
