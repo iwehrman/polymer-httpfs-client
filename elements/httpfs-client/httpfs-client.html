@@ -1,10 +1,37 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/core-toolbar/core-toolbar.html">
+<link rel="import" href="../../bower_components/core-scroll-header-panel/core-scroll-header-panel.html">
+
 <link rel="import" href="../httpfs-directory/httpfs-directory.html">
 <link rel="import" href="../httpfs-file/httpfs-file.html">
 <link rel="import" href="../httpfs-ajax/httpfs-ajax.html">
 
+
 <polymer-element name="httpfs-client" attributes="hostname port">
     <template>
+        <core-scroll-header-panel flex>
+            <core-toolbar>
+              <div>Hello World!</div>
+            </core-toolbar>
+            <div class="content">
+                <httpfs-directory
+                    id="directory"
+                    hostname={{hostname}}
+                    port={{port}}
+                    path={{path}}
+                    disabled={{!isDirectory}}
+                    on-load-entry={{handleLoadEntry}}
+                    on-entries-changed={{handleEntriesChanged}}>
+                </httpfs-directory>
+                <httpfs-file
+                    id="file"
+                    hostname={{hostname}}
+                    port={{port}}
+                    path={{path}}
+                    disabled={{!isFile}}>
+                </httpfs-file>
+            </div>
+        </core-scroll-header-panel>
         <httpfs-ajax
             id="ajax"
             hostname={{hostname}}
@@ -13,22 +40,6 @@
             handleAs="json"
             on-httpfs-response={{handleStat}}>
         </httpfs-ajax>
-        <httpfs-directory
-            id="directory"
-            hostname={{hostname}}
-            port={{port}}
-            path={{path}}
-            disabled={{!isDirectory}}
-            on-load-entry={{handleLoadEntry}}
-            on-entries-changed={{handleEntriesChanged}}>
-        </httpfs-directory>
-        <httpfs-file
-            id="file"
-            hostname={{hostname}}
-            port={{port}}
-            path={{path}}
-            disabled={{!isFile}}>
-        </httpfs-file>
     </template>
     <script>
         Polymer("httpfs-client", {
