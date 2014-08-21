@@ -13,8 +13,6 @@
             handleAs="json"
             on-httpfs-response="{{handleResponse}}">
         </httpfs-ajax>
-
-        <header>Directory: {{path}}</header>
         <ol id="entries">
             <template repeat="{{entry in entries}}">
                 <li>

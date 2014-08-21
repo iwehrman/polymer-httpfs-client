@@ -8,12 +8,13 @@
 
 
 <polymer-element name="httpfs-client" attributes="hostname port">
+    <link rel="stylesheet" href="httpfs-client.css">
     <template>
         <core-scroll-header-panel flex>
             <core-toolbar>
-              <div>Hello World!</div>
+              <div>{{isDirectory ? "Directory:" : "File"}} {{path}}</div>
             </core-toolbar>
-            <div class="content">
+            <div class="content" style="height: 100%">
                 <httpfs-directory
                     id="directory"
                     hostname={{hostname}}
