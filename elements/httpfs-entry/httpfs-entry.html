@@ -91,21 +91,20 @@
                 extension = extension.trim().toLowerCase();
 
                 var info = extensionInfo[extension];
-                if (!info || !info.image) {
+                if (!info) {
                     return;
                 }
 
                 var httpfsUrl = this.$.url;
                 httpfsUrl.path = this.path;
                 httpfsUrl.retina = window.devicePixelRatio === 2;
+                var href = httpfsUrl.getUrl();
 
-                var href = httpfsUrl.getUrl(),
-                    preview = this.$.preview,
-                    imgHtml = "<img src='" + href + "'/>",
-                    anchor = this.$.preview.children[0];
-
-                anchor.innerHTML = imgHtml;
-                anchor.style.display = "inline";
+                if (info.image) {
+                    this.previewImage(href, info.contentType);
+                } else if (info.video) {
+                    this.previewVideo(href, info.contentType);
+                }
             },
             handleClick: function (event) {
                 this.fire("load-entry", {
@@ -114,6 +113,32 @@
                 });
 
                 event.preventDefault();
+            },
+            previewImage: function (href, contentType) {
+                var preview = this.$.preview,
+                    imgHtml = "<img src='" + href + "'/>",
+                    anchor = this.$.preview.children[0];
+
+                anchor.innerHTML = imgHtml;
+                anchor.style.display = "inline";
+            },
+            previewVideo: function (href, contentType) {
+                var preview = this.$.preview,
+                    videoHtml = "<video loop muted height='200px'><source src='" +
+                        href + "' type='" + contentType + "'></video>",
+                    anchor = this.$.preview.children[0];
+
+                anchor.innerHTML = videoHtml;
+                anchor.style.display = "inline";
+
+                var video = anchor.children[0];
+                anchor.addEventListener("mouseover", function () {
+                    video.play();
+                });
+
+                anchor.addEventListener("mouseleave", function () {
+                    video.pause();
+                });
             }
         });
     </script>

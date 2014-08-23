@@ -68,6 +68,10 @@
                     case "image/jpeg":
                         this.handleImage(response, xhr);
                         break;
+                    case "video/mp4":
+                    case "video/webm":
+                        this.handleVideo(response, xhr);
+                        break;
                     case "text/plain; charset=utf-8":
                     case "text/html; charset=utf-8":
                     case "text/xml; charset=utf-8":
@@ -96,6 +100,27 @@
                     url = createObjectURL(blob);
 
                 this.$.container.innerHTML = "<img src='" + url + "'/>";
+                revokeObjectURL(blob);
+            },
+            handleVideo: function (response, xhr) {
+                var hasURL = URL.hasOwnProperty("createObjectURL"),
+                    createObjectURL,
+                    revokeObjectURL;
+
+                if (hasURL) {
+                    createObjectURL = URL.createObjectURL;
+                    revokeObjectURL = URL.revokeObjectURL;
+                } else {
+                    createObjectURL = webkitURL.createObjectURL;
+                    revokeObjectURL = webkitURL.revokeObjectURL;
+                }
+
+                var contentType = xhr.getResponseHeader("content-type")
+                    blob = new Blob([response], {type: contentType}),
+                    url = createObjectURL(blob);
+
+                this.$.container.innerHTML = "<video autoplay='true' loop muted height='200px'><source src='" +
+                        url + "' type='" + contentType + "'></video>",
                 revokeObjectURL(blob);
             },
             handleUTF8: function (response, xhr) {

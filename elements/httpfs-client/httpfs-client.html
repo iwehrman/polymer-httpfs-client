@@ -10,16 +10,18 @@
 <polymer-element name="httpfs-client" attributes="hostname port">
     <link rel="stylesheet" href="httpfs-client.css">
     <template>
-        <core-scroll-header-panel flex>
+        <core-scroll-header-panel flex id="header">
             <core-toolbar>
               <div>{{isDirectory ? "Directory:" : "File"}} {{path}}</div>
             </core-toolbar>
-            <div class="content" style="height: 100%">
+            <div class="content">
                 <httpfs-directory
                     id="directory"
                     hostname={{hostname}}
                     port={{port}}
                     path={{path}}
+                    sort="mtime"
+                    desc="true"
                     disabled={{!isDirectory}}
                     on-load-entry={{handleLoadEntry}}
                     on-entries-changed={{handleEntriesChanged}}>
@@ -51,6 +53,10 @@
             ready: function () {
                 this.setPathFromHref();
                 window.onpopstate = this.handlePopState.bind(this);
+
+                this.$.header.addEventListener("scroll", function () {
+                    this.$.directory.handleScroll();
+                }.bind(this));
             },
             setPathFromHref: function () {
                 var hash = window.location.hash,

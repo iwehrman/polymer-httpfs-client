@@ -53,8 +53,6 @@
                 if (this.path && !this.disabled) {
                     this.execute();
                 }
-
-                window.onscroll = this.handleScroll.bind(this);
             },
             disabled: false,
             disabledChanged: function (oldValue, newValue) {
@@ -100,14 +98,13 @@
                         return 0;
                     }
                 });
-
             },
             handleScroll: function () {
                 requestAnimationFrame(this.showVisibleEntries.bind(this));
             },
             showVisibleEntries: function () {
-                var top = window.scrollY,
-                    bottom = top + window.screen.height,
+                var right = (window.innerWidth || document.documentElement.clientWidth),
+                    bottom = (window.innerHeight || document.documentElement.clientHeight),
                     entries = this.shadowRoot.querySelectorAll("httpfs-entry"),
                     entry,
                     rect;
@@ -116,9 +113,10 @@
                     entry = entries[i];
                     rect = entry.getBoundingClientRect();
 
-                    if (rect.bottom < top || rect.top > bottom) {
-                        entry.setAttribute("disabled", "true");
-                    } else {
+                    if (rect.bottom >= 0 &&
+                        rect.right >= 0 &&
+                        rect.top <= bottom &&
+                        rect.left <= right) {
                         entry.setAttribute("disabled", "false");
                     }
                 }
