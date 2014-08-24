@@ -124,7 +124,7 @@
             },
             previewVideo: function (href, contentType) {
                 var preview = this.$.preview,
-                    videoHtml = "<video loop muted height='200px'><source src='" +
+                    videoHtml = "<video autoplay preload='auto' muted height='200px'><source src='" +
                         href + "' type='" + contentType + "'></video>",
                     anchor = this.$.preview.children[0];
 

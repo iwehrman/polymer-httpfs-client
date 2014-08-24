@@ -12,7 +12,7 @@
     <template>
         <core-scroll-header-panel flex id="header">
             <core-toolbar>
-              <div>{{isDirectory ? "Directory:" : "File"}} {{path}}</div>
+              <div class="title">{{isDirectory ? "Directory:" : "File"}} {{path}}</div>
             </core-toolbar>
             <div class="content">
                 <httpfs-directory
